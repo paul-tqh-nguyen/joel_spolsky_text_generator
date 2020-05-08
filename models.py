@@ -384,9 +384,15 @@ class Predictor(ABC):
         assert len(input_strings) == len(next_characters)
         return next_characters
     
-    def append_predicted_next_characters(self, input_strings: List[str], number_of_next_characters: int = NUMBER_OF_PREDICTED_CHARACTERS_TO_DEMONSTRATE) -> List[str]:
+    def append_predicted_next_characters(self, input_strings: List[str], number_of_next_characters: int, note_progress: bool) -> List[str]:
         output_strings = input_strings
-        for _ in range(number_of_next_characters):
+        next_char_iterator = range(number_of_next_characters)
+        if note_progress:
+            next_char_iterator = tqdm_with_message(next_char_iterator,
+                                                   post_yield_message_func = lambda index: f'Generating charcter {index}',
+                                                   total=number_of_next_characters,
+                                                   bar_format='{l_bar}{bar:50}{r_bar}')
+        for _ in next_char_iterator:
             next_characters = self.predict_next_characters(output_strings)
             assert len(next_characters) == len(output_strings)
             output_strings = [output_string+next_character for output_string, next_character in zip(output_strings, next_characters)]
@@ -396,7 +402,7 @@ class Predictor(ABC):
     def _demonstrate_example(self, dataset: data.Dataset, example_index: int) -> None:
         input_tensor = dataset[example_index][0]
         input_string = ''.join([self.idx2char[idx.item()] for idx in input_tensor])
-        new_string = self.append_predicted_next_characters([input_string], NUMBER_OF_PREDICTED_CHARACTERS_TO_DEMONSTRATE)
+        new_string = self.append_predicted_next_characters([input_string], NUMBER_OF_PREDICTED_CHARACTERS_TO_DEMONSTRATE, false)
         print(f'Input String    {repr(input_string)}')
         print(f'Extended String {repr(new_string)}')
         return 
@@ -409,7 +415,7 @@ class Predictor(ABC):
     
     def generate_random_strings(self, number_of_random_strings: int, number_of_next_characters: int) -> List[str]:
         initial_strings = [''.join(self.idx2char[idx] for idx in map(torch.Tensor.item, random.choice(self.dataset.tensors[0]))) for __ in range(number_of_random_strings)]
-        random_strings = self.append_predicted_next_characters(initial_strings, number_of_next_characters)
+        random_strings = self.append_predicted_next_characters(initial_strings, number_of_next_characters, True)
         random_strings = [random_string[self.input_sequence_length:] for random_string in random_strings]
         assert len(random_strings) == number_of_random_strings
         return random_strings
