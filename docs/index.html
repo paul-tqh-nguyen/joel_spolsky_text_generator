@@ -5,12 +5,10 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Code+Pro">
     <script type="text/javascript">
       function updateGeneratedText() {
-	  const random_text_key = "best_valid_loss" // @todo update this // json.random_text;
-	  const json_file_choices = [ // @todo update this list
-	      "https://raw.githubusercontent.com/paul-tqh-nguyen/reuters_topic_labelling/master/global_best_model_score.json",
-	      "https://raw.githubusercontent.com/paul-tqh-nguyen/reuters_topic_labelling/414d882c0c5d1e9067b713f451a52b94645392df/global_best_model_score.json",
-	  ]
-	  const json_file = json_file_choices[Math.floor(Math.random() * json_file_choices.length)];
+	  const random_text_key = "random_text";
+	  const json_file_index_upper_bound = 768;
+	  const json_file_index = Math.floor(Math.random() * json_file_index_upper_bound);
+	  const json_file = `https://raw.githubusercontent.com/paul-tqh-nguyen/joel_spolsky_text_generator/master/randomly_generated_texts/random_string_{json_file_index}.json`;
 	  fetch(json_file)
 	      .then(response => response.json())
 	      .then(json => {
