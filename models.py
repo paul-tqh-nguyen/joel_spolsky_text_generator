@@ -77,8 +77,8 @@ def input_output_pairs_from_blog_texts(blog_texts: List[str], char2idx: dict, in
     return reduce(list.__add__, eager_map(input_output_pairs_from_blog_text, zip(blog_texts, itertools.repeat(char2idx), itertools.repeat(input_string_length))))
 
 def initialize_numericalized_blog_dataset(input_string_length: int) -> data.Dataset:
-    x_data: List[str] = []
-    y_data: List[str] = []
+    x_data: List[List[int]] = []
+    y_data: List[List[int]] = []
     preprocessed_data_df = pd.read_csv(PREPROCESSED_CSV_FILE)
     blog_texts = [blog_text for blog_text in preprocessed_data_df.blog_text if len(blog_text) > input_string_length]
     idx2char = sorted(reduce(set.union, [set(blog) for blog in blog_texts]))
@@ -201,11 +201,11 @@ class Predictor(ABC):
     
     @property
     def char2idx(self) -> dict:
-        return self.char2idx
+        return self.dataset.char2idx
     
     @property
     def idx2char(self) -> dict:
-        return self.idx2char
+        return self.dataset.idx2char
     
     @property
     def dataset_size(self) -> int:
@@ -356,22 +356,11 @@ class Predictor(ABC):
     def init_via_check_point_directory(self, check_point_directory: str) -> None:
         pass
     
-    def predict_next_character(self, input_string: str) -> str:
-        self.model.eval()
-        expected_string_length = len(self.dataset[0])
-        padded_input_string = input_string[-expected_string_length:] if len(input_string) > expected_string_length else (expected_string_length-len(input_string))*' '+input_string
-        indexed = [self.char2idx[char] for char in input_string]
-        tensor = torch.LongTensor(indexed).to(DEVICE)
-        assert tuple(tensor.shape) == (len(input_string),)
-        tensor = tensor.view(1,-1)
-        assert tuple(tensor.shape) == (1, len(input_string))
-        predictions = self.model(tensor).detach()
-        assert tuple(predictions.shape) == (1, self.output_size)
-        prediction = predictions[0]
+    def next_character_from_prediction(self, prediction: torch.Tensor) -> str:
         assert tuple(prediction.shape) == (self.output_size,)
         next_character_index = torch.argmax(prediction)
         for _ in range(self.output_size):
-            next_character_choices = F.softmax(prediction) > torch.rand(self.output_size).to(DEVICE)
+            next_character_choices = F.softmax(prediction, dim=0) > torch.rand(self.output_size).to(prediction.device)
             if any(next_character_choices):
                 wheres = torch.where(next_character_choices)
                 where = only_one(wheres)
@@ -381,16 +370,33 @@ class Predictor(ABC):
         assert len(next_character)==1
         return next_character
     
-    def append_predicted_next_characters(self, input_string: str, number_of_next_characters: int = NUMBER_OF_PREDICTED_CHARACTERS_TO_DEMONSTRATE) -> str:
-        output_string = input_string
+    def predict_next_characters(self, input_strings: Iterable[str]) -> List[str]:
+        self.model.eval()
+        expected_string_length = self.dataset.tensors[0].shape[1]
+        padded_input_strings = [input_string[-expected_string_length:] if len(input_string) > expected_string_length else (expected_string_length-len(input_string))*' '+input_string
+                               for input_string in input_strings]
+        input_strings_indexed = [[self.char2idx[char] for char in padded_input_string] for padded_input_string in padded_input_strings]
+        tensor = torch.LongTensor(input_strings_indexed).to(DEVICE)
+        assert tuple(tensor.shape) == (len(input_strings), expected_string_length)
+        predictions = self.model(tensor).detach()
+        assert tuple(predictions.shape) == (len(input_strings), self.output_size)
+        next_characters = eager_map(self.next_character_from_prediction, predictions)
+        assert len(input_strings) == len(next_characters)
+        return next_characters
+    
+    def append_predicted_next_characters(self, input_strings: List[str], number_of_next_characters: int = NUMBER_OF_PREDICTED_CHARACTERS_TO_DEMONSTRATE) -> List[str]:
+        output_strings = input_strings
         for _ in range(number_of_next_characters):
-            output_string = output_string+self.predict_next_character(output_string)
-        return output_string
+            next_characters = self.predict_next_characters(output_strings)
+            assert len(next_characters) == len(output_strings)
+            output_strings = [output_string+next_character for output_string, next_character in zip(output_strings, next_characters)]
+        assert len(output_strings) == len(input_strings)
+        return output_strings
     
     def _demonstrate_example(self, dataset: data.Dataset, example_index: int) -> None:
         input_tensor = dataset[example_index][0]
         input_string = ''.join([self.idx2char[idx.item()] for idx in input_tensor])
-        new_string = self.append_predicted_next_characters(input_string, NUMBER_OF_PREDICTED_CHARACTERS_TO_DEMONSTRATE)
+        new_string = self.append_predicted_next_characters([input_string], NUMBER_OF_PREDICTED_CHARACTERS_TO_DEMONSTRATE)
         print(f'Input String    {repr(input_string)}')
         print(f'Extended String {repr(new_string)}')
         return 
@@ -400,12 +406,13 @@ class Predictor(ABC):
     
     def demonstrate_validation_example(self, example_index: int) -> None:
         return self._demonstrate_example(self.validation_dataset, example_index)
-
-    def generate_random_string(self, number_of_next_characters: int = NUMBER_OF_PREDICTED_CHARACTERS_TO_DEMONSTRATE) -> str:
-        initial_string = ''.join(random.choice(self.idx2char) for _ in range(self.input_sequence_length))
-        random_string = self.append_predicted_next_characters(initial_string, NUMBER_OF_PREDICTED_CHARACTERS_TO_DEMONSTRATE)
-        random_string = random_string[self.input_sequence_length:]
-        return random_string
+    
+    def generate_random_strings(self, number_of_random_strings: int, number_of_next_characters: int) -> List[str]:
+        initial_strings = [''.join(self.idx2char[idx] for idx in map(torch.Tensor.item, random.choice(self.dataset.tensors[0]))) for __ in range(number_of_random_strings)]
+        random_strings = self.append_predicted_next_characters(initial_strings, number_of_next_characters)
+        random_strings = [random_string[self.input_sequence_length:] for random_string in random_strings]
+        assert len(random_strings) == number_of_random_strings
+        return random_strings
 
 class LSTMPredictor(Predictor):
     def initialize_model(self) -> None:

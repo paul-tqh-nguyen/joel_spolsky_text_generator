@@ -1,4 +1,4 @@
-#!/usr/bin/python3 -O
+#!/usr/bin/python3
 '#!/usr/bin/python3 -OO' # @ todo use this
 
 '''
@@ -9,10 +9,21 @@
 ###########
 
 import argparse
-import random
 import os
+import random
+import math
+import json
 import itertools
+
 from misc_utilities import *
+
+###########
+# Globals #
+###########
+
+RANDOM_TEXT_LENGTH = 10_000
+NUMBER_OF_RANDOM_TEXTS_TO_GENERATE = 3600*24
+NUMBER_OF_RANDOM_TEXTS_GENERATION_BATCH_SIZE = 256
 
 #########################
 # Hyperparameter Search #
@@ -55,18 +66,47 @@ def hyperparameter_search() -> None:
                 predictor.train()
     return
 
+########################
+# Generate Random Text #
+########################
+
+def generate_json_files_of_random_text(check_point_directory: str) -> None:
+    output_directory = './randomly_generated_texts'
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+    from models import LSTMPredictor
+    predictor = LSTMPredictor.init_via_check_point_directory(check_point_directory, '/tmp/null/')
+    os.rmdir('/tmp/null/')
+    random_string_lists: List[List[str]] = []
+    number_of_full_batches, remainder = divmod(NUMBER_OF_RANDOM_TEXTS_TO_GENERATE, NUMBER_OF_RANDOM_TEXTS_GENERATION_BATCH_SIZE)
+    for _ in tqdm_with_message(range(number_of_full_batches), post_yield_message_func = lambda index: f'Generating random text batch {index}', bar_format='{l_bar}{bar:50}{r_bar}'):
+        random_string_lists.append(predictor.generate_random_strings(NUMBER_OF_RANDOM_TEXTS_GENERATION_BATCH_SIZE, RANDOM_TEXT_LENGTH))
+    if remainder != 0:
+        random_string_lists.append(predictor.generate_random_strings(remainder, RANDOM_TEXT_LENGTH))
+    for json_file_index, random_string in tqdm_with_message(enumerate(itertools.chain(*random_string_lists)),
+                                                            post_yield_message_func = lambda index: f'Saving JSON file for random text {index}',
+                                                            total=NUMBER_OF_RANDOM_TEXTS_TO_GENERATE,
+                                                            bar_format='{l_bar}{bar:50}{r_bar}'):
+        assert isinstance(random_string, str)
+        json_file_location = os.path.join(output_directory, f'random_string_{json_file_index}.json')
+        with open(json_file_location, 'w') as json_file_handle:
+            json.dump({'random_text': random_string}, json_file_handle)
+    return 
+
 ##########
 # Driver #
 ##########
 
+@debug_on_error
 def main() -> None:
-    parser = argparse.ArgumentParser(formatter_class = lambda prog: argparse.HelpFormatter(prog, max_help_position = 40))
+    parser = argparse.ArgumentParser(formatter_class = lambda prog: argparse.HelpFormatter(prog, max_help_position = float('inf')))
     parser.add_argument('-gather-data', action='store_true', help='Scrape the blog to create an unprocessed data CSV.') # @todo test this
     parser.add_argument('-preprocess-data', action='store_true', help='Preprocess the unprocessed data CSV into a preprocessed CSV.')
     parser.add_argument('-train-model', action='store_true', help='Trains our model on our dataset. Saves model to ./default_output/best-model.pt.') # @todo use the globals
     parser.add_argument('-hyperparameter-search', action='store_true', help='Exhaustively performs -train-model over the hyperparameter space via random search. Details of the best performance are tracked in global_best_model_score.json.') # @todo use the globals
+    parser.add_argument('-generate-random-text-from-checkpoint', dest="check_point_dir", help='Loads the model at the specified checkpoint directory and saves them to .json files in ./randomly_generated_texts.') # @todo use the two globals
     args = parser.parse_args()
-    number_of_args_specified = sum(map(int,vars(args).values()))
+    number_of_args_specified = sum(map(bool,vars(args).values()))
     if number_of_args_specified == 0:
         parser.print_help()
     elif number_of_args_specified > 1:
@@ -82,6 +122,8 @@ def main() -> None:
         models.train_model()
     elif args.hyperparameter_search:
         hyperparameter_search()
+    elif args.check_point_dir:
+        generate_json_files_of_random_text(args.check_point_dir)
     else:
         raise Exception('Unexpected args received.')
     return
