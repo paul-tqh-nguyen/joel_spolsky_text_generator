@@ -1,7 +1,14 @@
-#!/usr/bin/python3
-'#!/usr/bin/python3 -OO' # @ todo use this
+#!/usr/bin/python3 -OO
 
 '''
+Thie file contains functionality for creating a blog-text generator driven by the blogs found at https://www.joelonsoftware.com/.
+
+Sections:
+* Imports
+* Globals
+* Hyperparameter Search
+* Generate Random Text
+* Driver
 '''
 
 ###########
