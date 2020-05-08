@@ -1,10 +1,16 @@
-#!/usr/bin/python3
-'#!/usr/bin/python3 -OO'
+*!/usr/bin/python3 -OO
 
 '''
-'''
+This file contains all the models underlying our Joel Spolsky blog generator. 
 
-# @todo fill in the doc string
+Sections:
+* Imports
+* Globals
+* Load Data
+* Models
+* Predictors
+* Main Driver
+'''
 
 ###########
 # Imports #

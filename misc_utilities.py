@@ -199,8 +199,6 @@ class __dpf_hack_by_paul__():
 
 dpf = __dpf_hack_by_paul__() # usage is like a='a' ; dpf.a
 
-# @todo make apropos methods
-
 # Timing Utilities
 
 from typing import Callable
