@@ -8,11 +8,11 @@
 	  const random_text_key = "random_text";
 	  const json_file_index_upper_bound = 768;
 	  const json_file_index = Math.floor(Math.random() * json_file_index_upper_bound);
-	  const json_file = `https://raw.githubusercontent.com/paul-tqh-nguyen/joel_spolsky_text_generator/master/randomly_generated_texts/random_string_{json_file_index}.json`;
+	  const json_file = `https://raw.githubusercontent.com/paul-tqh-nguyen/joel_spolsky_text_generator/master/randomly_generated_texts/random_string_${json_file_index}.json`;
 	  fetch(json_file)
 	      .then(response => response.json())
 	      .then(json => {
-		  document.getElementById("generated-text").innerHTML = json[random_text_key];
+		  document.getElementById("generated-text").innerHTML = '...'+json[random_text_key]+'...';
 	      });
       }
     </script>
