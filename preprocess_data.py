@@ -1,9 +1,14 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -OO
 
 """
-"""
+This file contains utilities for pre-processing the data scraped from https://joelonsoftware.com/
 
-# @todo fill in doc string
+Sections:
+* Imports
+* Globals
+* Data Pre-processing
+* Driver
+"""
 
 ###########
 # Imports #
