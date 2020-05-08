@@ -1,10 +1,19 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -OO
 
 """
-"""
+This file contains web scraping utilities aimed at gathering data from https://www.joelonsoftware.com/
 
-# @todo fill in doc string
-# @todo fill in the doc string
+Sections:
+* Imports
+* Globals
+* Web Scraping Utilities
+* Blog Scraper
+* Month Links
+** Blog Links from Month Links
+** Data from Blog Links
+* Sanity Checking
+* Driver
+"""
 
 ###########
 # Imports #
