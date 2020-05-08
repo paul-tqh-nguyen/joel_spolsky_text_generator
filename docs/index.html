@@ -1,8 +1,62 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>Joel Spolsky Blog Generator</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Code+Pro">
+    <script type="text/javascript">
+      function updateGeneratedText() {
+	  const random_text_key = "best_valid_loss" // @todo update this // json.random_text;
+	  const json_file_choices = [ // @todo update this list
+	      "https://raw.githubusercontent.com/paul-tqh-nguyen/reuters_topic_labelling/master/global_best_model_score.json",
+	      "https://raw.githubusercontent.com/paul-tqh-nguyen/reuters_topic_labelling/414d882c0c5d1e9067b713f451a52b94645392df/global_best_model_score.json",
+	  ]
+	  const json_file = json_file_choices[Math.floor(Math.random() * json_file_choices.length)];
+	  fetch(json_file)
+	      .then(response => response.json())
+	      .then(json => {
+		  document.getElementById("generated-text").innerHTML = json[random_text_key];
+	      });
+      }
+    </script>
+    <script src="./space/warpspeed.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="./index.css">
+    <link rel="stylesheet" type="text/css" href="./space/space.css">
+    <div id="background">
+      <canvas id="bkFrame" width="100" height="100"></canvas>
+      <script type="text/javascript">
+	ai_background=new WarpSpeed("bkFrame",{targetSpeed:0.8, speedAdjFactor:0.07, shape:"square", backgroundColor:"hsl(263,45%,8%)", speedWhileLoading:18});
+      </script>
+    </div>
   </head>
   <body>
-    Example text
+    <main>
+      <h1>Joel Spolsky Blog Generator</h1>
+      <p>This is a Joel Spolsky Blog Generator. The generated blogs are driven by a neural network trained on <a target="_blank" href="https://www.joelonsoftware.com/">Joel Spolsky's blogs</a>.</p>
+      <p>The source code can be found <a target="_blank" href="https://github.com/paul-tqh-nguyen/joel_spolsky_text_generator">here</a>.</p>
+      <div id="generated-text">
+	Click the button below to generate new blog text!
+      </div>
+      <div id="update-generated-text-button-container">
+	<a class="update-generated-text-button noselect" onclick="updateGeneratedText()">New Generated Text</a>
+      </div>
+    </main>
+    <footer>
+      <card id="left-card">
+	  <div class="card-text">
+	<a target="_blank" href="https://github.com/paul-tqh-nguyen">
+	    <p>Interested in my work?</p>
+	    <p><b>See my projects on GitHub.</b></p>
+	</a>
+	  </div>
+      </card>
+      <card id="right-card">
+	  <div class="card-text">
+	<a target="_blank" href="https://paul-tqh-nguyen.github.io/about/">
+	    <p>Want to learn more about me?</p>
+	    <p><b>Visit my website.</b></p>
+	</a>
+	  </div>
+      </card>
+    </footer>
   </body>
 </html>

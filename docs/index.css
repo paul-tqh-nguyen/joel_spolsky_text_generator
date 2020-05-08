@@ -1,0 +1,135 @@
+
+html, body {
+    text-align: center;
+    color: #FFFFFF;
+    font-family: 'Roboto',sans-serif;
+    line-height: 1.55;
+}
+
+h1 {
+    font-size: 7vh;
+}
+
+.noselect {
+    -webkit-touch-callout: none; 
+    -webkit-user-select: none; 
+    -khtml-user-select: none; 
+    -moz-user-select: none; 
+    -ms-user-select: none; 
+    user-select: none; 
+}
+
+#generated-text {
+    overflow:scroll;
+    text-align: left;
+    display: block;
+    margin-left: 25vw;
+    width: 50vw;
+    height: 30vh;
+    font-family: 'Source Code Pro', Courier, Monaco, monospace;
+    border-radius: 25px;
+    border: 2px solid #FFFFFF;
+    padding: 20px;
+    margin-top: 4vh; 
+    margin-bottom: 4vh; 
+}
+
+p {
+    margin-top: 2vh; 
+    margin-bottom: 3vh; 
+}
+
+#update-generated-text-button-container {
+    display: block;
+    height: 5vh;
+}
+
+a.update-generated-text-button {
+    font-size: 1em;
+    display: inline-block;
+    padding: 0.35em 1.2em;
+    margin: 0 0.3em 0.3em 0;
+    border: 0.1em solid #FFFFFF;
+    border-radius: 0.12em;
+    box-sizing: border-box;
+    text-decoration: none;
+    font-family: 'Roboto',sans-serif;
+    font-weight: 300;
+    color: #FFFFFF;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+a {
+    color: #FFFFFF;
+    font-weight: 400;
+    text-decoration: underline;
+    cursor: pointer !important;
+}
+
+a.update-generated-text-button:hover {
+    font-size: 1.05em;
+}
+
+a.update-generated-text-button:active {
+    font-size: 1em;
+}
+
+a:hover {
+    color: #ffe5ad;
+    border-color: #ffe5ad;
+}
+
+user agent stylesheet
+a:-webkit-any-link {
+    color: -webkit-link;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    display: grid;
+    width: 100vw;
+    height: 20vh;
+}
+
+
+footer card {
+    position: relative;
+    top: 50%;
+    text-align: center;
+    transform: translate(0, -50%);
+    vertical-align: baseline;
+}
+
+footer card a {
+    text-decoration: none;
+}
+
+footer card .card-text {
+    border: 0.1em solid #FFFFFF;
+    border-radius: 5px;
+    width: 50%;
+    margin-left: 25%;
+    transition: all 0.5s;
+}
+
+footer card .card-text:active {
+    font-size: 0.9em;
+    border-radius: 10px;
+}
+
+footer card .card-text:hover {
+    border: 0.1em solid #ffe5ad;
+}
+
+
+#left-card {
+    grid-column: 1;
+}
+
+#right-card {
+    grid-column: 2;
+}
