@@ -79,31 +79,43 @@ def hyperparameter_search() -> None:
 # Generate Random Text #
 ########################
 
-def random_text_generator(check_point_directory: str) -> Generator[str, None, None]:
-    from models import LSTMPredictor
-    predictor = LSTMPredictor.init_via_check_point_directory(check_point_directory, '/tmp/null/')
-    number_of_full_batches, remainder = divmod(NUMBER_OF_RANDOM_TEXTS_TO_GENERATE, NUMBER_OF_RANDOM_TEXTS_GENERATION_BATCH_SIZE)
-    for _ in range(number_of_full_batches):
-        random_strings = predictor.generate_random_strings(NUMBER_OF_RANDOM_TEXTS_GENERATION_BATCH_SIZE, RANDOM_TEXT_LENGTH)
-        for random_string in random_strings:
-            yield random_string
-    if remainder != 0:
-        random_strings = predictor.generate_random_strings(remainder, RANDOM_TEXT_LENGTH)
-        for random_string in random_strings:
-            yield random_string
-    os.rmdir('/tmp/null/')
-
-def generate_json_files_of_random_text(check_point_directory: str) -> None:
-    output_directory = RANDOMLY_GENERATED_TEXTS_OUTPUT_DIR
+def missing_file_name_generator(output_directory: str) -> Generator[str, None, None]:
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
-    random_texts = random_text_generator(check_point_directory)
-    for json_file_index, random_string in enumerate(random_texts):
-        assert isinstance(random_string, str)
+    for json_file_index in range(NUMBER_OF_RANDOM_TEXTS_TO_GENERATE):
         json_file_location = os.path.join(output_directory, f'random_string_{json_file_index}.json')
-        with open(json_file_location, 'w') as json_file_handle:
-            json.dump({'random_text': random_string}, json_file_handle)
-        print(f"Finished {json_file_location}")
+        if os.path.isfile(json_file_location):
+            with open(json_file_location, 'r') as json_file_handle:
+                try:
+                    if 'random_text' in json.load(f):
+                        continue
+                except:
+                    pass
+        yield json_file_location
+    return
+
+def generate_json_files_of_random_text(check_point_directory: str) -> None:
+    from models import LSTMPredictor
+    predictor = LSTMPredictor.init_via_check_point_directory(check_point_directory, '/tmp/null/')
+    output_directory = RANDOMLY_GENERATED_TEXTS_OUTPUT_DIR
+    missing_file_name_iterator = missing_file_name_generator(output_directory)
+    for _ in range(NUMBER_OF_RANDOM_TEXTS_TO_GENERATE):
+        missing_file_batch: List[str] = []
+        for _ in range(NUMBER_OF_RANDOM_TEXTS_GENERATION_BATCH_SIZE):
+            try:
+                missing_file_batch.append(next(missing_file_name_iterator))
+            except StopIteration:
+                break
+        if len(missing_file_batch) > 0:
+            random_strings = predictor.generate_random_strings(len(missing_file_batch), RANDOM_TEXT_LENGTH)
+            for missing_file_name, random_string in zip(missing_file_batch, random_strings):
+                assert isinstance(random_string, str)
+                with open(json_file_location, 'w') as json_file_handle:
+                    json.dump({'random_text': random_string}, json_file_handle)
+                print(f"Finished {json_file_location}")
+        else:
+            break
+    os.rmdir('/tmp/null/')
     return 
 
 ##########
