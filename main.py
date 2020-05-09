@@ -28,6 +28,7 @@ from misc_utilities import *
 # Globals #
 ###########
 
+RANDOMLY_GENERATED_TEXTS_OUTPUT_DIR = './randomly_generated_texts'
 RANDOM_TEXT_LENGTH = 10_000
 NUMBER_OF_RANDOM_TEXTS_TO_GENERATE = 3600*24
 NUMBER_OF_RANDOM_TEXTS_GENERATION_BATCH_SIZE = 256
@@ -37,6 +38,7 @@ NUMBER_OF_RANDOM_TEXTS_GENERATION_BATCH_SIZE = 256
 #########################
 
 def hyperparameter_search() -> None:
+    import models
     from models import LSTMPredictor
     
     number_of_epochs = 100
@@ -55,7 +57,7 @@ def hyperparameter_search() -> None:
 
     for (batch_size,input_sequence_length, embedding_size, encoding_hidden_size, number_of_encoding_layers, dropout_probability) in hyparameter_list_choices:
         output_directory = f'./results/epochs_{number_of_epochs}_train_frac_{training_portion}_valid_frac_{validation_portion}_batch_size_{batch_size}_input_length_{input_sequence_length}_embed_size_{embedding_size}_encoding_size_{encoding_hidden_size}_encoding_layers_{number_of_encoding_layers}_dropout_{dropout_probability}'
-        final_output_results_file = os.path.join(output_directory, 'final_model_info.json') # @todo make this a global and use it
+        final_output_results_file = os.path.join(output_directory, models.FINAL_MODEL_INFO_JSON_NAME)
         if os.path.isfile(final_output_results_file):
             print(f'Skipping result generation for {final_output_results_file}.')
         else:
@@ -92,7 +94,7 @@ def random_text_generator(check_point_directory: str) -> Generator[str, None, No
     os.rmdir('/tmp/null/')
 
 def generate_json_files_of_random_text(check_point_directory: str) -> None:
-    output_directory = './randomly_generated_texts'
+    output_directory = RANDOMLY_GENERATED_TEXTS_OUTPUT_DIR
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
     random_texts = random_text_generator(check_point_directory)
@@ -110,12 +112,13 @@ def generate_json_files_of_random_text(check_point_directory: str) -> None:
 
 @debug_on_error
 def main() -> None:
+    from models import OUTPUT_DIRECTORY, BEST_MODEL_PT_NAME, GLOBAL_BEST_MODEL_SCORE_JSON_NAME
     parser = argparse.ArgumentParser(formatter_class = lambda prog: argparse.HelpFormatter(prog, max_help_position = float('inf')))
-    parser.add_argument('-gather-data', action='store_true', help='Scrape the blog to create an unprocessed data CSV.') # @todo test this
+    parser.add_argument('-gather-data', action='store_true', help='Scrape the blog to create an unprocessed data CSV.')
     parser.add_argument('-preprocess-data', action='store_true', help='Preprocess the unprocessed data CSV into a preprocessed CSV.')
-    parser.add_argument('-train-model', action='store_true', help='Trains our model on our dataset. Saves model to ./default_output/best-model.pt.') # @todo use the globals
-    parser.add_argument('-hyperparameter-search', action='store_true', help='Exhaustively performs -train-model over the hyperparameter space via random search. Details of the best performance are tracked in global_best_model_score.json.') # @todo use the globals
-    parser.add_argument('-generate-random-text-from-checkpoint', dest="check_point_dir", help='Loads the model at the specified checkpoint directory and saves them to .json files in ./randomly_generated_texts.') # @todo use the two globals
+    parser.add_argument('-train-model', action='store_true', help=f'Trains our model on our dataset. Saves model to {os.path.join(OUTPUT_DIRECTORY, BEST_MODEL_PT_NAME)}.')
+    parser.add_argument('-hyperparameter-search', action='store_true', help=f'Exhaustively performs -train-model over the hyperparameter space via random search. Details of the best performance are tracked in {GLOBAL_BEST_MODEL_SCORE_JSON_NAME}.')
+    parser.add_argument('-generate-random-text-from-checkpoint', dest="check_point_dir", help=f'Loads the model at the specified checkpoint directory and saves them to .json files in {RANDOMLY_GENERATED_TEXTS_OUTPUT_DIR}.')
     args = parser.parse_args()
     number_of_args_specified = sum(map(bool,vars(args).values()))
     if number_of_args_specified == 0:

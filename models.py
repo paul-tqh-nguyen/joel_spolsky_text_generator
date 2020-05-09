@@ -59,6 +59,11 @@ ENCODING_HIDDEN_SIZE = 128
 NUMBER_OF_ENCODING_LAYERS = 2
 DROPOUT_PROBABILITY = 0.5
 
+FINAL_MODEL_INFO_JSON_NAME = 'final_model_info.json'
+BEST_MODEL_PT_NAME = 'best-model.pt'
+GLOBAL_BEST_MODEL_SCORE_JSON_NAME = 'global_best_model_score.json'
+MODEL_INFO_JSON_NAME = 'model_info.json'
+
 #############
 # Load Data #
 #############
@@ -257,7 +262,7 @@ class Predictor(ABC):
     
     def train(self) -> None:
         self.print_hyperparameters()
-        best_saved_model_location = os.path.join(self.output_directory, 'best-model.pt')
+        best_saved_model_location = os.path.join(self.output_directory, BEST_MODEL_PT_NAME)
         most_recent_validation_loss_scores = [float('inf')]*NUMBER_OF_RELEVANT_RECENT_EPOCHS
         print(f'Starting training')
         for epoch_index in range(self.number_of_epochs):
@@ -317,11 +322,11 @@ class Predictor(ABC):
         return accuracy
     
     def save_current_model_information(self, epoch_index: int, train_loss: float, train_accuracy: float, valid_loss: float, valid_accuracy: float, is_final_result: bool) -> None:
-        model_info_json_file_location = os.path.join(self.output_directory, 'final_model_info.json' if is_final_result else 'model_info.json')
-        if not os.path.isfile('global_best_model_score.json'):
+        model_info_json_file_location = os.path.join(self.output_directory, FINAL_MODEL_INFO_JSON_NAME if is_final_result else MODEL_INFO_JSON_NAME)
+        if not os.path.isfile(GLOBAL_BEST_MODEL_SCORE_JSON_NAME):
             log_current_model_as_best = True
         else:
-            with open('global_best_model_score.json', 'r') as current_global_best_model_score_json_file:
+            with open(GLOBAL_BEST_MODEL_SCORE_JSON_NAME, 'r') as current_global_best_model_score_json_file:
                 current_global_best_model_score_dict = json.load(current_global_best_model_score_json_file)
                 current_global_best_model_loss: float = current_global_best_model_score_dict['best_valid_loss']
                 log_current_model_as_best = current_global_best_model_loss > self.best_valid_loss
@@ -439,8 +444,8 @@ class LSTMPredictor(Predictor):
 
     @classmethod
     def init_via_check_point_directory(cls, check_point_directory: str, output_directory) -> Predictor:
-        pt_file_location = os.path.join(check_point_directory, 'best-model.pt')
-        model_info_json_file_location = os.path.join(check_point_directory, 'model_info.json')
+        pt_file_location = os.path.join(check_point_directory, BEST_MODEL_PT_NAME)
+        model_info_json_file_location = os.path.join(check_point_directory, MODEL_INFO_JSON_NAME)
         assert os.path.isfile(pt_file_location)
         assert os.path.isfile(model_info_json_file_location)
         with open(model_info_json_file_location) as model_info_file_handle:
