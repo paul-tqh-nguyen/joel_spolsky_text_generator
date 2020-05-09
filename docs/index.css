@@ -18,8 +18,13 @@ h1 {
     user-select: none; 
 }
 
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
+
 #generated-text {
-    overflow:scroll;
+    overflow: auto;
     text-align: left;
     display: block;
     margin-left: 25vw;

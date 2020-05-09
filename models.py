@@ -1,4 +1,4 @@
-*!/usr/bin/python3 -OO
+#!/usr/bin/python3 -OO
 
 '''
 This file contains all the models underlying our Joel Spolsky blog generator. 
