@@ -1,4 +1,5 @@
 html, body {
+    overflow-x: hidden;
     text-align: center;
     color: #FFFFFF;
     font-family: 'Roboto',sans-serif;
@@ -99,6 +100,7 @@ footer {
 
 
 footer card {
+    width: 40vw;
     position: relative;
     top: 50%;
     text-align: center;
