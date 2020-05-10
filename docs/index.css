@@ -92,13 +92,12 @@ a:-webkit-any-link {
     text-decoration: underline;
 }
 
-footer {
-    display: grid;
+{
     width: 100vw;
     height: 20vh;
 }
 
-footer card {
+card {
     width: 40vw;
     position: relative;
     top: 50%;
@@ -109,34 +108,24 @@ footer card {
     margin-bottom: 3vh;
 }
 
-footer card a {
+card a {
     text-decoration: none;
 }
 
-footer card .card-text {
+card .card-text {
     border: 0.1em solid #FFFFFF;
     border-radius: 5px;
-    width: 50%;
-    margin-left: 25%;
     padding-right: 10px;
     padding-left: 10px;
     transition: all 0.5s;
 }
 
-footer card .card-text:active {
+card .card-text:active {
     font-size: 0.9em;
     border-radius: 10px;
 }
 
-footer card .card-text:hover {
+card .card-text:hover {
     border: 0.1em solid #ffe5ad;
 }
 
-
-#left-card {
-    grid-column: 1;
-}
-
-#right-card {
-    grid-column: 2;
-}
