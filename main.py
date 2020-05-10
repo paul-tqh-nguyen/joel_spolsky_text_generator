@@ -86,11 +86,8 @@ def missing_file_name_generator(output_directory: str) -> Generator[str, None, N
         json_file_location = os.path.join(output_directory, f'random_string_{json_file_index}.json')
         if os.path.isfile(json_file_location):
             with open(json_file_location, 'r') as json_file_handle:
-                try:
-                    if 'random_text' in json.load(f):
-                        continue
-                except:
-                    pass
+                if 'random_text' in json.load(json_file_handle):
+                    continue
         yield json_file_location
     return
 
@@ -110,9 +107,9 @@ def generate_json_files_of_random_text(check_point_directory: str) -> None:
             random_strings = predictor.generate_random_strings(len(missing_file_batch), RANDOM_TEXT_LENGTH)
             for missing_file_name, random_string in zip(missing_file_batch, random_strings):
                 assert isinstance(random_string, str)
-                with open(json_file_location, 'w') as json_file_handle:
+                with open(missing_file_name, 'w') as json_file_handle:
                     json.dump({'random_text': random_string}, json_file_handle)
-                print(f"Finished {json_file_location}")
+                print(f"Finished {missing_file_name}")
         else:
             break
     os.rmdir('/tmp/null/')
