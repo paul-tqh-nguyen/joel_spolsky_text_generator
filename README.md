@@ -18,5 +18,3 @@ The model is a simple LSTM model that attempts to predict the next character giv
 We used [Pyppeteer](https://github.com/miyakogi/pyppeteer) to scrape the data and [PyTorch](https://pytorch.org/) to implement our model.
 
 Any feedback is welcome! My contact information can be found [here](https://paul-tqh-nguyen.github.io/about/#contact).
-
-NB: Using [Pyppeteer](https://github.com/miyakogi/pyppeteer) was not the best choice (I generally agree with the ideas presented [here](https://medium.com/@gajus/it-is-a-really-silly-idea-to-use-puppeteer-to-scrape-the-web-da62a9f3de7e) on this topic). I chose [Pyppeteer](https://github.com/miyakogi/pyppeteer) simply because I already had a web scraper from a previous project that utilized it and because adapting the code for this project took less than an hour. 
