@@ -6,7 +6,7 @@
     <script type="text/javascript">
       function updateGeneratedText() {
 	  const random_text_key = "random_text";
-	  const json_file_index_upper_bound = 15807;
+	  const json_file_index_upper_bound = 23232;
 	  const json_file_index = Math.floor(Math.random() * json_file_index_upper_bound);
 	  const json_file = `https://raw.githubusercontent.com/paul-tqh-nguyen/joel_spolsky_text_generator/master/randomly_generated_texts/random_string_${json_file_index}.json`;
 	  fetch(json_file)
