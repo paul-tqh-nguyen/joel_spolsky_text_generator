@@ -2,7 +2,7 @@
 
 This is a Joel Spolsky Blog Generator.
 
-The generated blogs are driven by a neural network trained on [Joel Spolsky's blogs]([https://www.joelonsoftware.com/](https://www.joelonsoftware.com/)).
+The generated blogs are driven by a neural network trained on [Joel Spolsky's blogs]([https://www.joelonsoftware.com/](https://www.joelonsoftware.com/)) via a character-level recurrent neural network.
 
 This is a simple application of the ideas found [here](http://karpathy.github.io/2015/05/21/rnn-effectiveness/).
 
