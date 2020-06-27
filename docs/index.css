@@ -8,6 +8,43 @@ html, body {
 
 h1 {
     font-size: 5vh;
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+#main-display {
+    transition: all 0.5s;
+    position: fixed;
+    top: -0;
+    bottom: 0;
+}
+
+#main-display.hide {
+    top: -200vh;
+    bottom: 200vh;
+}
+
+#help-display {
+    transition: all 0.5s;
+    position: fixed;
+    top: 12vh;
+    bottom: 12vh;
+    right: 10vw;
+    left: 10vw;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: 5px solid white;
+    border-radius: 100px;
+    overflow-y: auto;
+}
+
+#help-display.hide {
+    top: -200vh;
+    bottom: 200vh;
+}
+
+#help-display-text {
+    padding: 30px;
 }
 
 .noselect {
@@ -41,15 +78,17 @@ h1 {
 
 p {
     margin-top: 2vh; 
-    margin-bottom: 3vh; 
+    margin-bottom: 3vh;
+    padding-left: 40px;
+    padding-right: 40px;
 }
 
-#update-generated-text-button-container {
+#push-button-container {
     display: block;
     height: 5vh;
 }
 
-a.update-generated-text-button {
+a.push-button {
     font-size: 1em;
     display: inline-block;
     padding: 0.35em 1.2em;
@@ -72,12 +111,8 @@ a {
     cursor: pointer !important;
 }
 
-a.update-generated-text-button:hover {
-    font-size: 1.05em;
-}
-
-a.update-generated-text-button:active {
-    font-size: 1em;
+a.push-button:active {
+    transform: translateY(5px);
 }
 
 a:hover {
@@ -90,11 +125,6 @@ a:-webkit-any-link {
     color: -webkit-link;
     cursor: pointer;
     text-decoration: underline;
-}
-
-{
-    width: 100vw;
-    height: 20vh;
 }
 
 card {
@@ -113,16 +143,15 @@ card a {
 }
 
 card .card-text {
+    transition: all 0.5s;
     border: 0.1em solid #FFFFFF;
     border-radius: 5px;
     padding-right: 10px;
     padding-left: 10px;
-    transition: all 0.5s;
 }
 
 card .card-text:active {
-    font-size: 0.9em;
-    border-radius: 10px;
+    transform: translateY(10px);
 }
 
 card .card-text:hover {
