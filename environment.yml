@@ -1,0 +1,14 @@
+name: joel
+dependencies:
+  - python=3.7
+  - pytorch
+  - pytorch::torchtext
+  - spacy
+  - pandas
+  - numpy
+  - matplotlib
+  - tqdm
+  - psutil
+  - pip
+  - pip:
+    - pyppeteer
