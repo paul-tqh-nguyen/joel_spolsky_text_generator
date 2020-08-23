@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -OO
 
-"""
+'''
 This file contains web scraping utilities aimed at gathering data from https://www.joelonsoftware.com/
 
 Sections:
@@ -13,7 +13,7 @@ Sections:
 ** Data from Blog Links
 * Sanity Checking
 * Driver
-"""
+'''
 
 ###########
 # Imports #
@@ -40,7 +40,7 @@ NUMBER_OF_ATTEMPTS_PER_SLEEP = 1
 SLEEPING_RANGE_SLEEP_TIME = 10
 BROWSER_IS_HEADLESS = True
 
-BLOG_ARCHIVE_URL = "https://www.joelonsoftware.com/archives/"
+BLOG_ARCHIVE_URL = 'https://www.joelonsoftware.com/archives/'
 
 OUTPUT_CSV_FILE = './raw_data.csv'
 
@@ -89,7 +89,7 @@ def scrape_function(func: Awaitable) -> Awaitable:
                 browser_process = only_one([process for process in psutil.process_iter() if process.pid==BROWSER.process.pid])
                 for child_process in browser_process.children(recursive=True):
                     child_process.kill()
-                browser_process.kill() # @hack memory leak ; this line doesn't actually kill the process (or maybe it just doesn't the PID?)
+                browser_process.kill() # @hack memory leak ; this line doesn't actually kill the process (or maybe it just doesn't free the PID?)
                 BROWSER = await _launch_browser()
             except Exception as err:
                 raise
@@ -110,7 +110,7 @@ def scrape_function(func: Awaitable) -> Awaitable:
 async def _gather_month_links(*, page) -> List[str]:
     month_links: List[str] = []
     await page.goto(BLOG_ARCHIVE_URL)
-    await page.waitForSelector("div.site-info")
+    await page.waitForSelector('div.site-info')
     month_lis = await page.querySelectorAll('li.month')
     for month_li in tqdm_with_message(month_lis, post_yield_message_func = lambda index: f'Gathering mongth link {index}', bar_format='{l_bar}{bar:50}{r_bar}'):
         anchors = await month_li.querySelectorAll('a')
@@ -129,7 +129,7 @@ def gather_month_links() -> List[str]:
 async def _blog_links_from_month_link(month_link: str, *, page: pyppeteer.page.Page) -> List[str]:
     blog_links: List[str] = []
     await page.goto(month_link)
-    await page.waitForSelector("div.site-info")
+    await page.waitForSelector('div.site-info')
     blog_h1s = await page.querySelectorAll('h1.entry-title')
     for blog_h1 in blog_h1s:
         anchors = await blog_h1.querySelectorAll('a')
@@ -151,7 +151,7 @@ def blog_links_from_month_links(month_links: Iterable[str]) -> Iterable[str]:
 async def _data_dict_from_blog_link(blog_link: str, *, page: pyppeteer.page.Page) -> dict:
     data_dict = {'blog_link': blog_link}
     await page.goto(blog_link)
-    await page.waitForSelector("div.site-info")
+    await page.waitForSelector('div.site-info')
     articles = await page.querySelectorAll('article.post')
     article = only_one(articles)
     
@@ -229,7 +229,7 @@ def sanity_check_output_csv_file() -> None:
 ##########
 
 def gather_data() -> None:
-    with timer("Data gathering"):
+    with timer('Data gathering'):
         month_links = gather_month_links()
         blog_links = blog_links_from_month_links(month_links)
         rows = data_dicts_from_blog_links(blog_links)
